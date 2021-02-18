@@ -76,6 +76,13 @@ final class WCMystore {
         require_once WCMYSTORE_INCLUDES . '/woocommerce/WCCustomers.php';
         require_once WCMYSTORE_INCLUDES . '/woocommerce/WCOrders.php';
     	require_once WCMYSTORE_INCLUDES . '/woocommerce/WCProducts.php';
+
+
+        require_once WCMYSTORE_INCLUDES . '/class-api.php';
+        require_once WCMYSTORE_INCLUDES . '/api/class-api-rest-controller.php';
+        require_once WCMYSTORE_INCLUDES . '/api/class-product-controller.php'; 
+        require_once WCMYSTORE_INCLUDES . '/api/class-order-controller.php';
+        require_once WCMYSTORE_INCLUDES . '/api/class-categories-controller.php'; 
     }
 
     public function init_plugin() {
@@ -107,10 +114,11 @@ final class WCMystore {
        $this->container[ 'wc_products' ]  = new WCMystore\WooCommerce\WCProducts();
        $this->container[ 'wc_orders' ]    = new WCMystore\WooCommerce\WCOrders();
        $this->container[ 'http' ]    = new WCMystore\Http();;
+       $this->container[ 'api' ]    = new WCMystore\Api();;
     }
 
     public function init_hooks() {
-        error_log(print_r($this->http->get(),true));
+        // error_log(print_r($this->http->get(),true));
     }
 
 }

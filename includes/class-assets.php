@@ -2,6 +2,7 @@
 
 namespace WCMystore;
 
+
 class Assets {
 
 	public function __construct() {
