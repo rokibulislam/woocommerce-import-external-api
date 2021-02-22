@@ -42,21 +42,21 @@ class Admin {
 
         $sections = array(
             array(
-                'id'    => 'contactum_reCaptcha',
+                'id'    => 'mystore_fields',
                 'title' => '',
                 'name' => __( 'MyStore', 'contactum' ),
                 'icon'  => 'dashicons-admin-appearance'
             )
         );
 
-        return apply_filters( 'contactum_settings_sections', $sections );
+        return apply_filters( 'mystore_settings_sections', $sections );
     }
 
 
     public function get_settings_fields() {
     
         $settings_fields = array(
-            'contactum_reCaptcha' => array(
+            'mystore_fields' => array(
                 array(
                     'name'    => 'key',
                     'label'   => __( 'Site Key', '' ),
@@ -74,6 +74,6 @@ class Admin {
             ),
         );
 
-        return apply_filters( 'contactum_settings_fields', $settings_fields );
+        return apply_filters( 'mystore_settings_fields', $settings_fields );
     }
 }

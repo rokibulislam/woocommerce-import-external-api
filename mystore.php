@@ -65,6 +65,8 @@ final class WCMystore {
         require_once WCMYSTORE_INCLUDES . '/class-http.php';
         require_once WCMYSTORE_INCLUDES . '/class-admin.php';
         require_once WCMYSTORE_INCLUDES . '/class-settings-api.php';
+        require_once WCMYSTORE_INCLUDES . '/class-import.php';
+
 
     	require_once WCMYSTORE_INCLUDES . '/class-customer.php';
     	require_once WCMYSTORE_INCLUDES . '/class-order.php';
@@ -88,7 +90,6 @@ final class WCMystore {
     public function init_plugin() {
     	$this->includes();
         $this->init_classes();
-        $this->init_hooks();
     }
 
     public function activate() {
@@ -113,14 +114,10 @@ final class WCMystore {
        $this->container[ 'wc_customers' ] = new WCMystore\WooCommerce\WCCustomers();
        $this->container[ 'wc_products' ]  = new WCMystore\WooCommerce\WCProducts();
        $this->container[ 'wc_orders' ]    = new WCMystore\WooCommerce\WCOrders();
-       $this->container[ 'http' ]    = new WCMystore\Http();;
-       $this->container[ 'api' ]    = new WCMystore\Api();;
+       $this->container[ 'http' ]         = new WCMystore\Http();;
+       $this->container[ 'api' ]          = new WCMystore\Api();;
+       $this->container[ 'importer' ]     = new WCMystore\Importer();;
     }
-
-    public function init_hooks() {
-        // error_log(print_r($this->http->get(),true));
-    }
-
 }
 
 if( !function_exists('wcystore') ) {

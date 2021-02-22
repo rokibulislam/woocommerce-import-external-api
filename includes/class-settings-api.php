@@ -219,9 +219,9 @@ class Mystore_Settings_API {
         $value = esc_attr( $this->get_option( $args['id'], $args['section'], $args['std'] ) );
 
         $html  = '<fieldset>';
-        $html  .= sprintf( '<label for="contactum-%1$s[%2$s]">', $args['section'], $args['id'] );
+        $html  .= sprintf( '<label for="mystore-%1$s[%2$s]">', $args['section'], $args['id'] );
         $html  .= sprintf( '<input type="hidden" name="%1$s[%2$s]" value="off" />', $args['section'], $args['id'] );
-        $html  .= sprintf( '<input type="checkbox" class="checkbox" id="contactum-%1$s[%2$s]" name="%1$s[%2$s]" value="on" %3$s />', $args['section'], $args['id'], checked( $value, 'on', false ) );
+        $html  .= sprintf( '<input type="checkbox" class="checkbox" id="mystore-%1$s[%2$s]" name="%1$s[%2$s]" value="on" %3$s />', $args['section'], $args['id'], checked( $value, 'on', false ) );
         $html  .= sprintf( '%1$s</label>', $args['desc'] );
         $html  .= '</fieldset>';
 
@@ -240,8 +240,8 @@ class Mystore_Settings_API {
         $html .= sprintf( '<input type="hidden" name="%1$s[%2$s]" value="" />', $args['section'], $args['id'] );
         foreach ( $args['options'] as $key => $label ) {
             $checked = in_array( $key, $value ) ? $key : 0;
-            $html    .= sprintf( '<label for="contactum-%1$s[%2$s][%3$s]">', $args['section'], $args['id'], $key );
-            $html    .= sprintf( '<input type="checkbox" class="checkbox" id="contactum-%1$s[%2$s][%3$s]" name="%1$s[%2$s][%3$s]" value="%3$s" %4$s />', $args['section'], $args['id'], $key, checked( $checked, $key, false ) );
+            $html    .= sprintf( '<label for="mystore-%1$s[%2$s][%3$s]">', $args['section'], $args['id'], $key );
+            $html    .= sprintf( '<input type="checkbox" class="checkbox" id="mystore-%1$s[%2$s][%3$s]" name="%1$s[%2$s][%3$s]" value="%3$s" %4$s />', $args['section'], $args['id'], $key, checked( $checked, $key, false ) );
             $html    .= sprintf( '%1$s</label><br>',  $label );
         }
 
@@ -262,8 +262,8 @@ class Mystore_Settings_API {
         $html  = '<fieldset>';
 
         foreach ( $args['options'] as $key => $label ) {
-            $html .= sprintf( '<label for="contactum-%1$s[%2$s][%3$s]">',  $args['section'], $args['id'], $key );
-            $html .= sprintf( '<input type="radio" class="radio" id="contactum-%1$s[%2$s][%3$s]" name="%1$s[%2$s]" value="%3$s" %4$s />', $args['section'], $args['id'], $key, checked( $value, $key, false ) );
+            $html .= sprintf( '<label for="mystore-%1$s[%2$s][%3$s]">',  $args['section'], $args['id'], $key );
+            $html .= sprintf( '<input type="radio" class="radio" id="mystore-%1$s[%2$s][%3$s]" name="%1$s[%2$s]" value="%3$s" %4$s />', $args['section'], $args['id'], $key, checked( $value, $key, false ) );
             $html .= sprintf( '%1$s</label><br>', $label );
         }
 
@@ -631,20 +631,20 @@ class Mystore_Settings_API {
         });
         </script>
         <style>
-            .contactum-settings-wrap {
+            .mystore-settings-wrap {
               margin-top: 20px;
             }
-            .contactum-settings-wrap .dashicons {
+            .mystore-settings-wrap .dashicons {
               padding-top: 2px;
               margin-right: 5px;
             }
-            .contactum-settings-wrap h2.nav-tab-wrapper {
+            .mystore-settings-wrap h2.nav-tab-wrapper {
               border-bottom: none;
               padding: 0;
               background: #f1f1f1;
               border: 1px solid #e0e0e0;
             }
-            .contactum-settings-wrap h2.nav-tab-wrapper a {
+            .mystore-settings-wrap h2.nav-tab-wrapper a {
                 display: inline-block;
                 float: none;
                 margin: 0;
@@ -653,12 +653,12 @@ class Mystore_Settings_API {
                 background: #f1f1f1;
                 font-weight: 500;
             }
-            .contactum-settings-wrap h2.nav-tab-wrapper a.nav-tab-active {
+            .mystore-settings-wrap h2.nav-tab-wrapper a.nav-tab-active {
                 background: #c8d7e1 !important;
                 border-right: 1px solid #c8d7e1;
                 color: #2e4453;
             }
-            .contactum-settings-wrap .metabox-holder {
+            .mystore-settings-wrap .metabox-holder {
               padding: 30px;
               background: #fff;
             }

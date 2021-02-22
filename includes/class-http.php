@@ -10,6 +10,19 @@ class Http {
 	private $url = '';
 	private $query = [];
 
+    private function args( $args ) {
+        
+        $defaults = [
+            'headers' => [
+                'Accept'        => 'application/vnd.api+json',
+                'Authorization' => 'Bearer '. $this->api_key 
+            ],
+        ];
+
+        return wp_parse_args( $args, $defaults );
+    }
+
+
 
     private function build_url( $url = '', $query = [] ) {
         if ( $url ) {
@@ -34,15 +47,10 @@ class Http {
 
 
 	public function get( $url = '', $query = [], $args = [] ) {
+        $args = $this->args( $args );
+        $url  = $this->build_url( $url, $query );
 		
-		$response = wp_remote_get( $this->root .'/categories', 
-			array(
-		        'headers' => array(
-		                'Accept' => 'application/vnd.api+json', 
-   						'Authorization' => 'Bearer '. $this->api_key 
-		        )
-		    )
-     	);
+        $response = wp_remote_get( $url, $args );
 
      	return $this->response( $response );
 	}
