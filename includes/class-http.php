@@ -5,15 +5,23 @@ use WP_Error;
 
 class Http {
 
-	public  $root = 'https://api.mystore.no/shops/fitnessgrossisten';
-	private $api_key = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiNTdmZDA5ODJiMzVkZTNlNzZlMGQ1Mzk4MDJiOTY1ZDQ3MGFkZjY1MTAwZmMxODUwZjQ3ZjVjY2FlM2YwNWViNjA5YjNkOWI4ZGI1NzQ4YzQiLCJpYXQiOjE2MTM0MTIxMDYsIm5iZiI6MTYxMzQxMjEwNiwiZXhwIjoxOTI4OTQ0OTA2LCJzdWIiOiJmaXRuZXNzZ3Jvc3Npc3Rlbl8xIiwic2NvcGVzIjpbInJlYWQ6cHJvZHVjdHMiLCJyZWFkOmNhdGVnb3JpZXMiLCJyZWFkOmltYWdlcyIsInJlYWQ6cHJvZHVjdC1hdHRyaWJ1dGVzIiwicmVhZDpwcm9kdWN0LXZhcmlhbnRzIiwicmVhZDpwcm9kdWN0LXNwZWNpYWxzIiwicmVhZDpwcm9kdWN0LXJldmlld3MiLCJyZWFkOnJlZGlyZWN0cyIsInJlYWQ6cHJvZHVjdC1vcHRpb25zIiwicmVhZDptYW51ZmFjdHVyZXJzIiwicmVhZDpzdXBwbGllcnMiLCJyZWFkOnRheC1jbGFzc2VzIiwicmVhZDpsYW5ndWFnZXMiLCJyZWFkOmN1cnJlbmNpZXMiLCJyZWFkOnNldHRpbmdzIiwicmVhZDpzaGlwcGluZyIsInJlYWQ6cmVsYXRpb25zaGlwcyIsInJlYWQ6YmF0Y2giLCJyZWFkOnByb2R1Y3QtcHJvcGVydGllcyIsInJlYWQ6d2ViaG9va3MiLCJyZWFkOnByb2R1Y3QtdGFncyIsImhpZGU6cHJvZHVjdHM6Y29zdCJdLCJub19teXN0b3JlX2hvc3RzIjpbImZpdG5lc3Nncm9zc2lzdGVuIl19.uH4fMUtgDvJyidXnXsWAM-Uml-GXYazKci1hBdQjZK8KiktsgG2QU74XESVUsTEQ0kAIgoGBYAuJC9g7LvPkqOAwRTGv4h5gSyR07mh6I8cRrjpXY6pJ_AhV0pauo8kS5s2b7ocgjgOgrWUKkiDo38zBFg6q8oAVm8EzwGNjHCdWofXrocu9OUCw3qZm7ODNowH9byvo02v54MyJWUGW7bIX3ZFBoLg_3Qs2I8el48i0P0cdtB7S6D56utMtD8eYstnjrxWz09UXEN3mDrmaNinl1zSyB7gRdPo1HUgzWiqULkqBLDq0AVhW9M1uaUvyWiG2_uQHzzBCGF6MXwiuzUE0EJz4VQvi2KB80jEbxwhkSgdtaMKHGx105paOVliUD98H7VDhD9G22sYBJh5z8lRXKJVuZDRivp4MywqA52vM0RDI8GFlTAJSkHmdTQvvT-NheWY56QwVscKJGbLTKXirxB9ADwdvw545SkUB162_R44K619FqYsQO8cYZAPvXoINg3Ue0MP_l0z_Yp4a4QRSUDjsLvlMnWGDjUJeP3lE7VCZ-Rx31HqbBUtp2dUD3DwDc2ztcIup_R7i0GqskVfAs0YtxDJAbUEYLRUkYpCFaa799Jkgc1uKQwcdYY926nNV9fayUZV0VY5bGV4dIOTFsNFoWLFj-omq-Iif2qw';
+    public  $root    = 'https://api.mystore.no/shops/';
+	public  $shop    = '';
+    private $api_key = '';
 	private $url = '';
 	private $query = [];
+
+    public function __construct() {
+       $this->api_key = mystore_get_options( 'mystore_fields', 'mystore_token');
+       $this->shop    = mystore_get_options( 'mystore_fields', 'mystore_name');
+       $this->root    = $this->root . $this->shop;
+    }
 
     private function args( $args ) {
         
         $defaults = [
             'headers' => [
+                'Content-Type'  => 'application/vnd.api+json',
                 'Accept'        => 'application/vnd.api+json',
                 'Authorization' => 'Bearer '. $this->api_key 
             ],
@@ -55,16 +63,40 @@ class Http {
      	return $this->response( $response );
 	}
 
-	public function post( $data = [], $args = [] ) {
+	public function post( $url = '', $data = [], $args = [] ) {
+        $args = $this->args( $args );
 
+        $args['body'] = ! empty( $data ) ? json_encode( $data ) : null;
+
+        $url = $this->build_url( $url );
+
+
+        error_log(print_r($url,true));
+        error_log(print_r($args,true));
+
+        $response = wp_remote_post( $url, $args );
+
+        error_log(print_r($response,true));
+
+        return $this->response( $response );
 	}
 
-	public function put( $data, $args = [] ) {
-
+	public function put( $url = '', $data, $args = [] ) {
+        $data['_method'] = 'put';
+        
+        return $this->post( $url, $data, $args );
 	}
 
 	public function delete( $data = [], $args = [] ) {
+        $args = $this->args( $args );
+        $args['method'] = 'delete';
+        $args['body'] = ! empty( $data ) ? $data : null;
 
+        $url = $this->build_url();
+
+        $response = wp_remote_request( $url, $args );
+
+        return $this->response( $response );
 	}
 
 

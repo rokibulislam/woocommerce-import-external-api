@@ -1,0 +1,22 @@
+{
+    "name": "rokibul/woocommerce-mystore",
+    "authors": [
+        {
+            "name": "rokibulislam",
+            "email": "rrcucse.11@gmail.com"
+        }
+    ],
+    "require": {
+        "deliciousbrains/wp-background-processing": "^1.0"
+    },
+    "require-dev": {},
+    "autoload": {
+        "psr-4": {
+            "WCMystore\\": "includes/"
+        },
+        "files": [
+            "includes/functions.php"
+        ]
+    },
+    "scripts": {}
+}

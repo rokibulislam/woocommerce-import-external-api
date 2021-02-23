@@ -11,8 +11,9 @@
  * Domain Path: domain/path
  */
 
-
 if ( !defined( 'ABSPATH' ) ) exit;
+
+require_once __DIR__ . '/vendor/autoload.php';
 
 final class WCMystore {
 
@@ -66,6 +67,7 @@ final class WCMystore {
         require_once WCMYSTORE_INCLUDES . '/class-admin.php';
         require_once WCMYSTORE_INCLUDES . '/class-settings-api.php';
         require_once WCMYSTORE_INCLUDES . '/class-import.php';
+        require_once WCMYSTORE_INCLUDES . '/class-process.php';
 
 
     	require_once WCMYSTORE_INCLUDES . '/class-customer.php';
@@ -77,7 +79,8 @@ final class WCMystore {
 
         require_once WCMYSTORE_INCLUDES . '/woocommerce/WCCustomers.php';
         require_once WCMYSTORE_INCLUDES . '/woocommerce/WCOrders.php';
-    	require_once WCMYSTORE_INCLUDES . '/woocommerce/WCProducts.php';
+        require_once WCMYSTORE_INCLUDES . '/woocommerce/WCProducts.php';
+    	require_once WCMYSTORE_INCLUDES . '/woocommerce/WCOrderProducts.php';
 
 
         require_once WCMYSTORE_INCLUDES . '/class-api.php';
@@ -101,7 +104,6 @@ final class WCMystore {
     }
 
     public function init_classes() {
-
        new WCMystore\Admin();
        new WCMystore\Customer();
        new WCMystore\Order();
@@ -114,9 +116,11 @@ final class WCMystore {
        $this->container[ 'wc_customers' ] = new WCMystore\WooCommerce\WCCustomers();
        $this->container[ 'wc_products' ]  = new WCMystore\WooCommerce\WCProducts();
        $this->container[ 'wc_orders' ]    = new WCMystore\WooCommerce\WCOrders();
-       $this->container[ 'http' ]         = new WCMystore\Http();;
-       $this->container[ 'api' ]          = new WCMystore\Api();;
-       $this->container[ 'importer' ]     = new WCMystore\Importer();;
+       $this->container[ 'http' ]         = new WCMystore\Http();
+       $this->container[ 'api' ]          = new WCMystore\Api();
+       $this->container[ 'importer' ]     = new WCMystore\Importer();
+       $this->container[ 'request' ]      = new WCMystore\Mystore_Request();
+       $this->container[ 'process' ]      = new WCMystore\Mystore_Process();
     }
 }
 

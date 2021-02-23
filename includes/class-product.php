@@ -32,35 +32,80 @@ class Product {
 
 
         if ( $is_new ) {
-            $new_arr = [
-                'id'          => $product->get_id(),
-                'name'        => $product->get_name(),
-                'slug'        => $product->get_slug(),
-                'images'      => $this->get_product_images( $product ),
-                'status'      => $product->get_status(),
-                'price'       => $product->get_price(),
-                'total_sales' => $product->get_total_sales(),
-                'rating'      => $product->get_average_rating(),
-                'permalink'   => get_permalink( $product->get_id() ),
-                'categories'  => $this->get_product_categories( $product->get_id() ),
+            
+            $data = [
+                'data' => [
+                    "type"  => "products",
+                    "attributes" => [   
+                        // 'id'          => $product->get_id(),
+                        "name" => [
+                            "no" => $product->get_name()
+                        ],
+                        "slug"  => [
+                            "no" => $product->get_slug()
+                        ]
+                        // 'images'      => $this->get_product_images( $product ),
+                        // 'status'      => $product->get_status(),
+                        // 'price'       => $product->get_price(),
+                        // 'total_sales' => $product->get_total_sales(),
+                        // 'rating'      => $product->get_average_rating(),
+                        // 'permalink'   => get_permalink( $product->get_id() ),
+                        // 'categories'  => $this->get_product_categories( $product->get_id() ),
+                    ],
+
+                    "relationships" => [
+                      "categories" => [
+                        "data" => [
+                          [
+                            "type" => "categories",
+                            "id" =>  "97"
+                          ]
+                        ]
+                      ]
+                    ]
+                ]
             ];
 
+            $response = wcystore()->http->post( '/products', $data );
         
         } else {
 
-            $update_arr = [
-                'id'          => $product->get_id(),
-                'name'        => $product->get_name(),
-                'slug'        => $product->get_slug(),
-                'images'      => $this->get_product_images( $product ),
-                'status'      => $product->get_status(),
-                'price'       => $product->get_price(),
-                'total_sales' => $product->get_total_sales(),
-                'rating'      => $product->get_average_rating(),
-                'permalink'   => get_permalink( $product->get_id() ),
-                'categories'  => $this->get_product_categories( $product->get_id() ),
+            $data = [
+                'data' => [
+                    "type"  => "products",
+                    "attributes" => [  
+                        // 'id'          => $product->get_id(),
+                        "name" => [
+                            "no" => $product->get_name()
+                        ],
+                        "slug"  => [
+                            "no" => $product->get_slug()
+                        ]
+                        // 'images'      => $this->get_product_images( $product ),
+                        // 'status'      => $product->get_status(),
+                        // 'price'       => $product->get_price(),
+                        // 'total_sales' => $product->get_total_sales(),
+                        // 'rating'      => $product->get_average_rating(),
+                        // 'permalink'   => get_permalink( $product->get_id() ),
+                        // 'categories'  => $this->get_product_categories( $product->get_id() )
+                    ],
+
+                    "relationships" => [
+                      "categories" => [
+                        "data" => [
+                          [
+                            "type" => "categories",
+                            "id" =>  "97"
+                          ]
+                        ]
+                      ]
+                    ]
+                ]
             ];
-       
+
+            $response = wcystore()->http->put( '/products', $data );
+
+            error_log(print_r($response,true));
         }
 
 	}

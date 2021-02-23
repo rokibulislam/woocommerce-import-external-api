@@ -17,19 +17,20 @@ class Order {
 
 
 	public function wc_order_received( $order_id ) {
-
+		$response = wcystore()->wc_orders->get( $order_id );
 	}
 
 	public function wc_order_status_updated( $order_id, $old_status, $new_status ) {
-
+		$response = wcystore()->wc_orders->get( $order_id );
 	}
 
 	public function order_create( $order_id ) {
-
+		wcystore()->wc_orders->get( $order_id );
 	}
 
 	public function order_refunded( $order_id, $refund_id ) { 
-
+  		$order  = new WC_Order( $order_id );
+  		$refund = new WC_Order_Refund( $refund_id );
 	} 
 
 	public function restock_refunded_item( $product_id, $old_stock, $new_stock, $order, $product ) {

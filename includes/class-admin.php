@@ -71,6 +71,20 @@ class Admin {
                     'type'    => 'text',
                     'default' => __( '', '' )
                 ),
+                array(
+                    'name'    => 'mystore_name',
+                    'label'   => __( 'Store Name', '' ),
+                    'desc'    => __( '', '' ),
+                    'type'    => 'text',
+                    'default' => __( '', '' )
+                ),
+                array(
+                    'name'    => 'mystore_token',
+                    'label'   => __( 'Mystore Token', '' ),
+                    'desc'    => __( '', '' ),
+                    'type'    => 'textarea',
+                    'default' => __( '', '' )
+                ),
             ),
         );
 
