@@ -47,6 +47,10 @@ class WCOrders {
 
 	}
 
+    public function create( $order ) {
+        // $attributes = $order['attributes'];
+    }
+
     private function getCustomerInfo( $order ) {
         $user = $order->get_user();
 

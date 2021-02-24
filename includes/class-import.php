@@ -1,73 +1,124 @@
 <?php 
 
 namespace WCMystore;
+use WCMystore\ImportMyStoreCategories;
+use WCMystore\ImportMyStorePost;
 
 class Importer {
 
 	public function __construct() {
-		// $this->get_products();
-		// $this->get_categories();
-		// $this->get_product_variants();
-		// $this->get_product_reviews();
-		// $this->get_product_tags();
-		// $this->get_orders();
-		// $this->get_shipping();
-		// $this->get_tax_classes();
-		// $this->get_suppliers();
-		// $this->get_manufacturers();
-		// $this->get_product_options();
-		// $this->get_product_specials();
-		// $this->get_customers();
-		// $this->get_customer_groups();
-		$this->get_customer(1);
+		
+		$api_key = mystore_get_options( 'mystore_fields', 'mystore_token');
+       	$shop    = mystore_get_options( 'mystore_fields', 'mystore_name');
+       	$import    = get_option( 'mystore_import' );
+		
+       	if( !empty( $shop ) && !empty( $api_key ) && !$import  ) {
+			
+			add_action( 'init', function() {
+				
+				$this->get_products();
+				$this->get_categories();
+				$this->get_product_variants();
+				$this->get_product_reviews();
+				$this->get_product_tags();
+				$this->get_orders();
+				$this->get_shipping();
+				$this->get_tax_classes();
+				$this->get_suppliers();
+				$this->get_manufacturers();
+				$this->get_product_options();
+				$this->get_product_specials();
+				$this->get_customers();
+				$this->get_customer_groups();
+				// $this->get_customer();	
+
+				update_option( 'mystore_import', true );
+			});
+		}
+
 	}
 
 	public function get_products() {
-	  $products = wcystore()->http->get( '/products');
+	 
+	 	 	
+	  	$products = wcystore()->http->get( '/products');
 
-	  if( !empty( $products['data'] ) ) {
-	  
-		  foreach ( $products['data'] as $product ) {
-		  
-		  	$attributes 	= $product['attributes'];
-		  	$price 			= isset( $attributes['price'] ) ? $attributes['price'] : 0.00;
-		  	$name 			= isset( $attributes['name']['no'] ) ? $attributes['name']['no'] : '';
-		  	$slug 			= isset( $attributes['slug']['no'] ) ? $attributes['slug']['no'] : '';
-		  	$description 	= isset( $attributes['description']['no'] ) ? $attributes['description']['no'] : '';
+	  	if ( is_wp_error( $products ) ) {
+	  		return ;
+	  	}
 
+	  	$importmystorePost = new ImportMyStorePost();
+	  	
+	  	if( isset( $products['data'] ) && !empty( $products['data'] ) ) {
 
-		  	$postarr = array(
-			  'post_title'    => $name,
-			  'post_content'  => $description,
-			  'post_status'   => 'draft',
-			  'post_type'	  => 'product'
-			);
-	 	
-		  	$post_id = wp_insert_post( $postarr );
+		  	foreach ( $products['data'] as $product ) {
+		  		
+		  		$importmystorePost->push_to_queue( $product );
 
-		  	update_post_meta( $post_id, 'mystore_product_id', $product['id']  );
+		  	/*
+		  		$product_id = $product["id"];
 
-		  }
+		  		wcystore()->wc_products->create( $product );
+		  	
+		  		$categories = wcystore()->http->get( "/products/{$product_id}/categories");
+
+				if( isset( $categories['data'] ) && !empty( $categories['data'] ) ) {
+				
+					foreach ( $categories['data'] as $category ) {
+
+						$attributes  = $category['attributes'];
+				   		$name 		 = $attributes['name']['no'];
+				   		$slug 		 = $attributes['slug']['no'];
+				   		$description = $attributes['description']['no'];
+
+				   		if( !term_exists( $name, 'product_cat' ) ) {
+						   	$term = wp_insert_term( $name, 'product_cat' );
+							wp_set_post_terms( $product_id, $term['term_id'],'product_cat' );
+							update_term_meta( $term['term_id'], 'mystore_product_cat_id', $category['id'] );
+						} else {
+							$term = get_term_by('name', $name, 'product_cat');
+							wp_set_post_terms( $product_id, $term->term_id,'product_cat' );
+							update_term_meta( $term->term_id, 'mystore_product_cat_id', $category['id'] );
+						}
+					}
+				}
+			*/
+		  	}
+
+		  	$importmystorePost->save()->dispatch();
+		
 		}
 	
 	}
 
 	public function get_categories() {
-	    $categories = wcystore()->http->get( '/categories');
 	    
-	    foreach ($categories['data'] as $category ) {
-	   		$attributes  = $category['attributes'];
-	   		$name 		 = $attributes['name']['no'];
-	   		$slug 		 = $attributes['slug']['no'];
-	   		$description = $attributes['description']['no'];
+	    $categories = wcystore()->http->get( '/categories');
 
-	   		if( !term_exists( $name, 'product_cat' ) ) {
+	    $importmystoreCategories = new ImportMyStoreCategories();
 
-			   	// $term = wp_insert_term( $name, 'product_cat' );
-			}
+	    if( isset( $categories['data'] ) ) {
 
-	   	}
+		    foreach ( $categories['data'] as $category ) {
 
+		    	$importmystoreCategories->push_to_queue($category);
+		   		
+		  //  		$attributes  = $category['attributes'];
+		  //  		$name 		 = $attributes['name']['no'];
+		  //  		$slug 		 = $attributes['slug']['no'];
+		  //  		$description = $attributes['description']['no'];
+
+		  //  		if( !term_exists( $name, 'product_cat' ) ) {
+
+				//    	$term = wp_insert_term( $name, 'product_cat', [
+				//    		'description' => $description,
+	   //      			'slug'        => $slug
+				//    	] );
+				// }
+		   	}
+
+		   	$importmystoreCategories->save()->dispatch();
+		}
 	}
 
 	public function get_product_variants() {
@@ -119,25 +170,7 @@ class Importer {
 
 		if( !empty( $customers['data '] ) ) {
 			foreach ( $customers['attributes'] as $customer ) {
-				$name 	  		  = $customer['name'];
-				$lastname 		  = $customer['lastname'];
-				$email 	  		  = $customer['email'];
-				$phone 	  		  = $customer['phone'];
-				$billing_email 	  = $customer['billing_email'];
-				$dob 	  		  = $customer['dob'];
-				$address_name 	  = $customer['address_name'];
-				$address_name 	  = $customer['address_lastname'];
-				$address_address  = $customer['address_address'];
-				$address_zipcode  = $customer['address_zipcode'];
-				$address_city  	  = $customer['address_city'];
-				$address_country  = $customer['address_country'];
-
-				$billing_address_name  	   = $customer['billing_address_name'];
-				$billing_address_lastname  = $customer['billing_address_lastname'];
-				$billing_address_address   = $customer['billing_address_address'];
-				$billing_address_zipcode   = $customer['billing_address_zipcode'];
-				$billing_address_city  	   = $customer['billing_address_city'];
-				$billing_address_country   = $customer['billing_address_country'];
+				wcystore()->wc_products->create( $product );	
 			}
 		}
 	}

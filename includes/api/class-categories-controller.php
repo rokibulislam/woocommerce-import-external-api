@@ -64,6 +64,23 @@ class CategoriesController extends WP_REST_Controller {
                 ),
             )
         );
+
+        register_rest_route(
+            $this->namespace, '/' . $this->rest_base . '/(?P<id>[\d]+)', array(
+                'args' => array(
+                    'id' => array(
+                        'description' => __( 'Unique identifier for the object.', '' ),
+                        'type'        => 'integer',
+                    )
+                ),
+
+                array(
+                    'methods'             => WP_REST_Server::DELETABLE,
+                    'callback'            => array( $this, 'delete_item' ),
+                    'permission_callback' => array( $this, 'delete_item_permissions_check' ),
+                ),
+            )
+        );
     }
 
 
@@ -117,5 +134,33 @@ class CategoriesController extends WP_REST_Controller {
         $response = rest_ensure_response( $response );
 
         return $response;
+    }
+
+    public function delete_item( $request ) {
+
+        $response = [
+            'data' => [],
+            'message' => __( 'Unknown source.', '' ),
+        ];
+
+        $response = rest_ensure_response( $response );
+
+        return $response;
+    }
+
+    public function get_items_permissions_check( $request ) {
+        return true;
+    }
+
+    public function create_item_permissions_check( $request ) {
+        return true;
+    }
+
+    public function update_item_permissions_check( $request ) {
+        return true;
+    }
+
+    public function delete_item_permissions_check( $request ) {
+        return true;  
     }
 }

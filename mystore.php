@@ -67,7 +67,9 @@ final class WCMystore {
         require_once WCMYSTORE_INCLUDES . '/class-admin.php';
         require_once WCMYSTORE_INCLUDES . '/class-settings-api.php';
         require_once WCMYSTORE_INCLUDES . '/class-import.php';
-        require_once WCMYSTORE_INCLUDES . '/class-process.php';
+       
+        require_once WCMYSTORE_INCLUDES . '/class-import-post.php';
+        require_once WCMYSTORE_INCLUDES . '/class-import-categories.php';
 
 
     	require_once WCMYSTORE_INCLUDES . '/class-customer.php';
@@ -107,11 +109,10 @@ final class WCMystore {
        new WCMystore\Admin();
        new WCMystore\Customer();
        new WCMystore\Order();
-       new WCMystore\Product();
+       // new WCMystore\Product();
        new WCMystore\ProductCategories();
-       new WCMystore\ProductTags();
-       new WCMystore\ProductReviews();
-       new WCMystore\ProductReviews();
+       // new WCMystore\ProductTags();
+       // new WCMystore\ProductReviews();
 
        $this->container[ 'wc_customers' ] = new WCMystore\WooCommerce\WCCustomers();
        $this->container[ 'wc_products' ]  = new WCMystore\WooCommerce\WCProducts();
@@ -119,8 +120,7 @@ final class WCMystore {
        $this->container[ 'http' ]         = new WCMystore\Http();
        $this->container[ 'api' ]          = new WCMystore\Api();
        $this->container[ 'importer' ]     = new WCMystore\Importer();
-       $this->container[ 'request' ]      = new WCMystore\Mystore_Request();
-       $this->container[ 'process' ]      = new WCMystore\Mystore_Process();
+       // $this->container[ 'process' ]      = new WCMystore\Mystore_Process();
     }
 }
 

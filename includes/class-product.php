@@ -7,13 +7,15 @@ class Product {
     protected $source = 'woocommerce';
 
 	public function __construct() {
-		add_action( 'save_post_product', [ $this, 'sync_on_product_save' ] , 10, 3 );
+	
+    	add_action( 'save_post_product', [ $this, 'sync_on_product_save' ] , 10, 3 );
 		add_action( 'woocommerce_update_product', [ $this, 'sync_on_product_update' ], 10, 2 );
 		add_action( 'woocommerce_delete_product', [ $this, 'sync_on_product_delete' ], 10, 1 );
-	}
 
-	public function sync_product_category() {
 
+        // stock update actions
+        add_action( 'woocommerce_product_set_stock', [ $this, 'handle_stock_update' ] );
+        add_action( 'woocommerce_variation_set_stock', [ $this, 'handle_stock_update' ] );
 	}
 
 	public function sync_on_product_save( $post_id, $post, $update ) {
@@ -66,6 +68,7 @@ class Product {
                 ]
             ];
 
+
             $response = wcystore()->http->post( '/products', $data );
         
         } else {
@@ -103,7 +106,10 @@ class Product {
                 ]
             ];
 
-            $response = wcystore()->http->put( '/products', $data );
+            $id = get_post_meta( $post_id, 'mystore_product_id', true  );
+
+
+            $response = wcystore()->http->put( "/products/{$id}", $data );
 
             error_log(print_r($response,true));
         }
@@ -116,7 +122,9 @@ class Product {
 	}
 
 	public function sync_on_product_delete( $product_id ) {
-
+        $id = get_post_meta( $post_id, 'mystore_product_id', true  );
+        $response = wcystore()->http->delete( "/products/{$id}", $data );
+        
 	}
 
 
@@ -159,6 +167,10 @@ class Product {
         }
 
         return $images;
+    }
+
+    public function handle_stock_update( ) {
+        
     }
 
 

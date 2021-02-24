@@ -57,7 +57,9 @@ class Http {
 	public function get( $url = '', $query = [], $args = [] ) {
         $args = $this->args( $args );
         $url  = $this->build_url( $url, $query );
-		
+		  
+        error_log(print_r($url,true));
+
         $response = wp_remote_get( $url, $args );
 
      	return $this->response( $response );
@@ -70,19 +72,16 @@ class Http {
 
         $url = $this->build_url( $url );
 
-
         error_log(print_r($url,true));
         error_log(print_r($args,true));
 
         $response = wp_remote_post( $url, $args );
 
-        error_log(print_r($response,true));
-
         return $this->response( $response );
 	}
 
 	public function put( $url = '', $data, $args = [] ) {
-        $data['_method'] = 'put';
+        $data['_method'] = 'PATCH';
         
         return $this->post( $url, $data, $args );
 	}
