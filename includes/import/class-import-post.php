@@ -1,5 +1,5 @@
 <?php 
-namespace WCMystore;
+namespace WCMystore\Import;
 
 use WP_Background_Process;
 

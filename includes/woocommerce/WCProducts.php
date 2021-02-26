@@ -1,59 +1,11 @@
 <?php 
-
 namespace WCMystore\WooCommerce;
 use WC_Product_Simple;
 
 class WCProducts {
 
-	public function all( $args = [] ) {
-		$post_statuses = apply_filters( 'mystore_get_product_status', [ 'publish', 'draft', 'pending', 'future' ] );
-
-        $defaults = [
-            'post_type'      => 'product',
-            'post_status'    => $post_statuses,
-            'posts_per_page' => -1,
-            'orderby'        => 'post_date',
-            'order'          => 'DESC',
-            'paged'          => 1,
-        ];
-
-        $args = wp_parse_args( $args, $defaults );
-
-        return new WP_Query( apply_filters( 'mystore_all_products_query', $args ) );
-	}
-
-    public function get( $product_id ) {
-        return wc_get_product( $product_id );
-    }
-
 	public function create( $args = [] ) {
-	 /*
-	  	$attributes 	= $product['attributes'];
-	  	$price 			= isset( $attributes['price'] ) ? $attributes['price'] : 0.00;
-	  	$name 			= isset( $attributes['name']['no'] ) ? $attributes['name']['no'] : '';
-	  	$slug 			= isset( $attributes['slug']['no'] ) ? $attributes['slug']['no'] : '';
-	  	$description 	= isset( $attributes['description']['no'] ) ? $attributes['description']['no'] : '';
-	  	$cost 			= isset( $attributes['cost'] ) ? $attributes['cost'] : 0.00;
-	  	$quantity		= isset( $attributes['quantity'] ) ? $attributes['quantity'] : 0;
-	  	$weight			= isset( $attributes['weight'] ) ? $attributes['weight'] : 0;
-
-	  	$postarr = array(
-		  'post_title'    => $name,
-		  'post_content'  => $description,
-		  'post_status'   => 'draft',
-		  'post_type'	  => 'product'
-		);
- 	
-	  	$post_id = wp_insert_post( $postarr );
-
-	  	update_post_meta( $post_id, 'mystore_product_id', $product['id']  );
-
-
-	  	return $post_id;
-	  */
-
 	  	$attributes 	= $args['attributes'];
-
 	  	$product = new WC_Product_Simple();
         
         if ( isset( $attributes['name']['no'] ) ) {
@@ -86,7 +38,6 @@ class WCProducts {
         }
 
         $product->save();
-
 
         update_post_meta( $product->get_id(), 'mystore_product_id', $args['id']  );
 

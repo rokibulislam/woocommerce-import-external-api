@@ -54,11 +54,9 @@ class ProductController extends WP_REST_Controller  {
                     'methods'             => WP_REST_Server::EDITABLE,
                     'callback'            => array( $this, 'update_item' ),
                     'args'                => array(
-                        'status' => array(
-                            'type'        => 'string',
-                            'description' => __( 'Order Status', '' ),
-                            'required'    => true,
-                            'sanitize_callback' => 'sanitize_text_field',
+                        'id' => array(
+                            'description' => __( 'Unique identifier for the object.', '' ),
+                            'type'        => 'integer',
                         ),
                     ),
                     'permission_callback' => array( $this, 'update_item_permissions_check' ),
@@ -87,8 +85,8 @@ class ProductController extends WP_REST_Controller  {
 
 
     public function create_item( $request ) {
-
-        error_log(print_r($request['data'],true));
+        // error_log('create');
+        // error_log(print_r($request,true));
 
         $product = wcystore()->wc_products->create( $request['data'] );
 
@@ -132,6 +130,11 @@ class ProductController extends WP_REST_Controller  {
 
     
     public function update_item( $request ) {
+        // error_log('update');
+        // error_log(print_r($request,true));
+
+        // $product = wcystore()->wc_products->update( $request['data'] );
+
 
         $response = [
             'data' => [],

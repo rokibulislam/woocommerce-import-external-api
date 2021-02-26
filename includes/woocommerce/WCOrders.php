@@ -10,11 +10,6 @@ class WCOrders {
     public function __construct() {
         $this->wc_products = new WCOrderProducts();
     }
-    
-
-	public function all( $args ) {
-
-	}
 
 	public function get( $id ) {
 		$order 		= wc_get_order( $id );
@@ -48,7 +43,7 @@ class WCOrders {
 	}
 
     public function create( $order ) {
-        // $attributes = $order['attributes'];
+
     }
 
     private function getCustomerInfo( $order ) {

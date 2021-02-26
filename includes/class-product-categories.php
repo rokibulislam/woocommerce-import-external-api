@@ -13,7 +13,6 @@ class ProductCategories {
 	public function on_category_create( $term_id, $tt_id ) {
 		$data = $this->get_category( $term_id, $tt_id, 'product_cat' );
 		$response = wcystore()->http->post( '/categories', $data );
-		error_log(print_r($response,true));
 		if( $response['data'] ) {
 			update_term_meta( $term_id, 'mystore_category_id', $response['data']['id'] );
 		}
@@ -35,7 +34,6 @@ class ProductCategories {
 		
 		if( !empty( $id ) ) {
 			$response = wcystore()->http->delete( "/categories/{$id}");
-			error_log(print_r($response,true));
 		}
 	}
 

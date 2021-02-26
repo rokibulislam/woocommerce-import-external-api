@@ -58,7 +58,7 @@ class Http {
         $args = $this->args( $args );
         $url  = $this->build_url( $url, $query );
 		  
-        error_log(print_r($url,true));
+        // error_log(print_r($url,true));
 
         $response = wp_remote_get( $url, $args );
 
@@ -72,8 +72,8 @@ class Http {
 
         $url = $this->build_url( $url );
 
-        error_log(print_r($url,true));
-        error_log(print_r($args,true));
+        // error_log(print_r($url,true));
+        // error_log(print_r($args,true));
 
         $response = wp_remote_post( $url, $args );
 

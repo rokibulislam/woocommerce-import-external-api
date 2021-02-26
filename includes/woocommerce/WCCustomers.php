@@ -4,17 +4,8 @@ namespace WCMystore\WooCommerce;
 
 
 class WCCustomers {
-
-	public function __construct() {
-		
-	}
-
-	public function all( $args ) {
-
-	}
-
-	public function create( $customer ) {
-		
+	
+	public function create( $customer ) {		
 		$name 	  		  = $customer['name'];
 		$lastname 		  = $customer['lastname'];
 		$email 	  		  = $customer['email'];
@@ -34,9 +25,5 @@ class WCCustomers {
 		$billing_address_zipcode   = $customer['billing_address_zipcode'];
 		$billing_address_city  	   = $customer['billing_address_city'];
 		$billing_address_country   = $customer['billing_address_country'];
-}
-
-	public function update() {
-		
 	}
 }
