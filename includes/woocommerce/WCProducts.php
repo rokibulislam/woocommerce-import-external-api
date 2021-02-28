@@ -5,6 +5,7 @@ use WC_Product_Simple;
 class WCProducts {
 
 	public function create( $args = [] ) {
+        error_log('create method');
 	  	$attributes 	= $args['attributes'];
 	  	$product = new WC_Product_Simple();
         

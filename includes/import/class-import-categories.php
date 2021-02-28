@@ -20,7 +20,7 @@ class ImportMyStoreCategories extends WP_Background_Process {
 	  }
 
 	  protected function task( $item ) {
-  		wcystore()->wc_categories->create( $item );
+  		  wcystore()->wc_categories->create( $item );
 
 		  return false;
 	  }

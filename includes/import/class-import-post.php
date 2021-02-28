@@ -21,32 +21,34 @@ class ImportMyStorePost extends WP_Background_Process {
 
 	protected function task( $product ) {
 
-  		$product_id = $product["id"];
+	  		$product_id = $product['id'];
 
-  		wcystore()->wc_products->create( $product );
-  	
-  		$categories = wcystore()->http->get( "/products/{$product_id}/categories");
+	  		$pro = wcystore()->wc_products->create( $product );
+	  	
+	  		$categories = wcystore()->http->get( "/products/{$product_id}/categories");
+	  		
+			if( isset( $categories['data'] ) && !empty( $categories['data'] ) ) {
 
-		if( isset( $categories['data'] ) && !empty( $categories['data'] ) ) {
-		
-			foreach ( $categories['data'] as $category ) {
+				$terms_list = [];
+			
+				foreach ( $categories['data'] as $category ) {
 
-				$attributes  = $category['attributes'];
-		   		$name 		 = $attributes['name']['no'];
-		   		$slug 		 = $attributes['slug']['no'];
-		   		$description = $attributes['description']['no'];
+	  				$term = wcystore()->wc_categories->create( $category );;
 
-		   		if( !term_exists( $name, 'product_cat' ) ) {
-				   	$term = wp_insert_term( $name, 'product_cat' );
-					wp_set_post_terms( $product_id, $term['term_id'],'product_cat' );
-					update_term_meta( $term['term_id'], 'mystore_product_cat_id', $category['id'] );
-				} else {
-					$term = get_term_by('name', $name, 'product_cat');
-					wp_set_post_terms( $product_id, $term->term_id,'product_cat' );
-					update_term_meta( $term->term_id, 'mystore_product_cat_id', $category['id'] );
+      				if( is_object( $term ) ) {
+      					array_push($terms_list, $term->term_id);
+      					update_term_meta( $term->term_id, 'mystore_product_cat_id', $category['id'] );
+      				} else if( is_array( $term ) ) {
+      					array_push($terms_list, $term['term_id']);
+      					update_term_meta( $term['term_id'], 'mystore_product_cat_id', $category['id'] );
+      				}
 				}
+
+				if( !empty( $terms_list ) ) {
+					wp_set_post_terms( $pro->get_id(), $terms_list,'product_cat' );
+				}
+
 			}
-		}
 				
 		return false;
 	}
