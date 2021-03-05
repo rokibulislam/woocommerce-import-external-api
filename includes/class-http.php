@@ -25,6 +25,7 @@ class Http {
                 'Accept'        => 'application/vnd.api+json',
                 'Authorization' => 'Bearer '. $this->api_key 
             ],
+            'timeout'     => 10000,
         ];
 
         return wp_parse_args( $args, $defaults );

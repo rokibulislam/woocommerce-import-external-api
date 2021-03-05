@@ -42,6 +42,8 @@ class WCProducts {
 
         update_post_meta( $product->get_id(), 'mystore_product_id', $args['id']  );
 
+        $this->attachImagePost( $attributes, $product->get_id() );
+
         return $product;
 	}
 
@@ -63,5 +65,38 @@ class WCProducts {
         }
 
         return $product;
+    }
+
+
+    public function attachImagePost( $attributes, $post_id ) {
+        $shop    = mystore_get_options( 'mystore_fields', 'mystore_name');
+        $image   = $attributes['image'];
+
+        if( $image != null ){
+            require_once(ABSPATH . 'wp-admin/includes/image.php');
+            $upload_dir = wp_upload_dir();
+            
+            $image_url  = "https://{$shop}.mystore4.no/users/{$shop}_mystore_no/images/$image";
+            $image_data = file_get_contents( $image_url);
+            $filename   = $upload_dir['basedir'] . '/' . strtotime("now") . $image ;
+            
+            file_put_contents( $filename, $image_data);
+            
+            $wp_filetype = wp_check_filetype( $filename, null );
+
+            $attachment = array(
+                'post_mime_type' => $wp_filetype['type'],
+                'post_title' => sanitize_file_name( basename( $filename ) ),
+                'post_content' => '',
+                'post_status' => 'inherit'
+            );
+
+            $attach_id = wp_insert_attachment( $attachment, $filename, $post_id );
+         
+           
+            $attach_data = wp_generate_attachment_metadata( $attach_id, $filename );
+            $res1        = wp_update_attachment_metadata( $attach_id, $attach_data );
+            $res2        = set_post_thumbnail( $post_id, $attach_id );
+        }
     }
 }

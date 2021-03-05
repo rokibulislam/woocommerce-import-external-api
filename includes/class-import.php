@@ -21,8 +21,8 @@ class Importer {
 			
 			add_action( 'admin_init', function() {
        			// $this->getCategory();
-				$this->get_categories();
-				$this->get_manufacturers();
+				// $this->get_categories();
+				// $this->get_manufacturers();
 				$this->get_products();
 
 				// $this->get_option();
@@ -49,10 +49,53 @@ class Importer {
 
 	  		$product = wcystore()->wc_products->create( $products['data'] );
 	  		$product_id = $products['data']['id'];
+	  		$shop    = mystore_get_options( 'mystore_fields', 'mystore_name');
+	  		$image = $products['data']['attributes']['image'];
 
+	  		if( $image != null ){
+	  			$upload_dir = wp_upload_dir();
+	  			$image_url = "https://{$shop}.mystore4.no/users/{$shop}_mystore_no/images/$image";
+	  			$image_data = file_get_contents( $image_url);
+	  			$filename = $upload_dir['basedir'] . '/' . strtotime("now") . $image ;
+	  			file_put_contents( $filename, $image_data);
+	  			$wp_filetype = wp_check_filetype( $filename, null );
+	  			$name = basename($filename);
+	  			error_log(print_r($wp_filetype,true));
+	  			error_log(print_r($name,true));
+/*
+	  			if ( true === function_exists( 'curl_init' ) ) {
+					  $save = $upload_dir['basedir'] . '/rokib.jpg';
+					  $start = curl_init($image_url);
+					  // curl_setopt($start, CURLOPT_URL, $image_url);
+					  curl_setopt($start, CURLOPT_HEADER, 0);
+					  curl_setopt($start, CURLOPT_RETURNTRANSFER, 1);
+					  curl_setopt($start, CURLOPT_BINARYTRANSFER, 3);
+					  $file_data = curl_exec($start);
+					  curl_close($start);
+
+					  $fp = fopen($save, 'x');
+					  fwrite($fp, $file_data);
+					  fclose($fp);
+				}
+				*/
+	  		
+    
+			    $attachment = array(
+			        'post_mime_type' => $wp_filetype['type'],
+			        'post_title' => sanitize_file_name($name),
+			        'post_content' => '',
+			        'post_status' => 'inherit'
+			    );
+
+			    $attach_id = wp_insert_attachment( $attachment, $filename, $product->get_id() );
+			    require_once(ABSPATH . 'wp-admin/includes/image.php');
+			    $attach_data = wp_generate_attachment_metadata( $attach_id, $filename );
+			    $res1= wp_update_attachment_metadata( $attach_id, $attach_data );
+			    $res2= set_post_thumbnail( $product->get_id(), $attach_id );
+
+	  		}
+	  	/*
 	  		$categories = wcystore()->http->get( "/products/{$product_id}/categories");
-
-	  		error_log(print_r($categories,true));
 
 			if( isset( $categories['data'] ) && !empty( $categories['data'] ) ) {
 
@@ -72,6 +115,7 @@ class Importer {
 
 				wp_set_post_terms( $product->get_id(), $terms_list,'product_cat' );
 			}
+		*/
 		}
 	}
 

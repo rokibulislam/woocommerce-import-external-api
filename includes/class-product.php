@@ -153,7 +153,7 @@ class Product {
                     "quantity"   => $product->get_stock_quantity(),
                     "price"      => $product->get_price(),
                     "weight"     => $product->get_weight(),
-                    'status'      => $product->get_status(),
+                    'status'     => $product->get_status(),
                     // 'total_sales' => $product->get_total_sales(),
                     // 'rating'      => $product->get_average_rating(),
                     // 'permalink'   => get_permalink( $product->get_id() ),
