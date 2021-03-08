@@ -20,9 +20,8 @@ class Importer {
        	if( !empty( $shop ) && !empty( $api_key ) && !$import  ) {
 			
 			add_action( 'admin_init', function() {
-       			// $this->getCategory();
-				// $this->get_categories();
-				// $this->get_manufacturers();
+				$this->get_categories();
+				$this->get_manufacturers();
 				$this->get_products();
 
 				// $this->get_option();
@@ -36,104 +35,34 @@ class Importer {
 	}
 
 	public function getCategory() {
-		$products = wcystore()->http->get( "/products/266/");
+		$categories = wcystore()->http->get( "/categories/75/");
 
-	  	if ( is_wp_error( $products ) ) {
+	  	if ( is_wp_error( $categories ) ) {
 
 	  		return ;
 	  	}
 
-	  	$importmystorePost = new ImportMyStorePost();
-	  	
-	  	if( isset( $products['data'] ) && !empty( $products['data'] ) ) {
-
-	  		$product = wcystore()->wc_products->create( $products['data'] );
-	  		$product_id = $products['data']['id'];
-	  		$shop    = mystore_get_options( 'mystore_fields', 'mystore_name');
-	  		$image = $products['data']['attributes']['image'];
-
-	  		if( $image != null ){
-	  			$upload_dir = wp_upload_dir();
-	  			$image_url = "https://{$shop}.mystore4.no/users/{$shop}_mystore_no/images/$image";
-	  			$image_data = file_get_contents( $image_url);
-	  			$filename = $upload_dir['basedir'] . '/' . strtotime("now") . $image ;
-	  			file_put_contents( $filename, $image_data);
-	  			$wp_filetype = wp_check_filetype( $filename, null );
-	  			$name = basename($filename);
-	  			error_log(print_r($wp_filetype,true));
-	  			error_log(print_r($name,true));
-/*
-	  			if ( true === function_exists( 'curl_init' ) ) {
-					  $save = $upload_dir['basedir'] . '/rokib.jpg';
-					  $start = curl_init($image_url);
-					  // curl_setopt($start, CURLOPT_URL, $image_url);
-					  curl_setopt($start, CURLOPT_HEADER, 0);
-					  curl_setopt($start, CURLOPT_RETURNTRANSFER, 1);
-					  curl_setopt($start, CURLOPT_BINARYTRANSFER, 3);
-					  $file_data = curl_exec($start);
-					  curl_close($start);
-
-					  $fp = fopen($save, 'x');
-					  fwrite($fp, $file_data);
-					  fclose($fp);
-				}
-				*/
-	  		
-    
-			    $attachment = array(
-			        'post_mime_type' => $wp_filetype['type'],
-			        'post_title' => sanitize_file_name($name),
-			        'post_content' => '',
-			        'post_status' => 'inherit'
-			    );
-
-			    $attach_id = wp_insert_attachment( $attachment, $filename, $product->get_id() );
-			    require_once(ABSPATH . 'wp-admin/includes/image.php');
-			    $attach_data = wp_generate_attachment_metadata( $attach_id, $filename );
-			    $res1= wp_update_attachment_metadata( $attach_id, $attach_data );
-			    $res2= set_post_thumbnail( $product->get_id(), $attach_id );
-
-	  		}
-	  	/*
-	  		$categories = wcystore()->http->get( "/products/{$product_id}/categories");
-
-			if( isset( $categories['data'] ) && !empty( $categories['data'] ) ) {
-
-				$terms_list = [];
-			
-				foreach ( $categories['data'] as $category ) {
-
-	  				$term = wcystore()->wc_categories->create( $category );
-
-      				if( is_object( $term ) ) {
-      					array_push($terms_list, $term->term_id);
-      					update_term_meta( $term->term_id, 'mystore_product_cat_id', $category['id'] );
-      				} else if( is_array( $term ) ) {
-      					array_push($terms_list, $term['term_id']);
-      				}
-				}
-
-				wp_set_post_terms( $product->get_id(), $terms_list,'product_cat' );
-			}
-		*/
-		}
+	  	if( $categories['data']['relationships']['parent']['data'] != null ) {
+	  		$parent = $categories['data']['relationships']['parent']['data']['id'];
+	  	}
 	}
 
 	public function get_products() {
-	 
 	  	$products = wcystore()->http->get( '/products');
 
 	  	if ( is_wp_error( $products ) ) {
-	    	// error_log(print_r($products,true));
 	  		return ;
 	  	}
+
 
 	  	$importmystorePost = new ImportMyStorePost();
 	  	
 	  	if( isset( $products['data'] ) && !empty( $products['data'] ) ) {
 		 
 		  	foreach ( $products['data'] as $product ) {
-		  		$importmystorePost->push_to_queue( $product );
+				$product_id = $product['id'];
+				// $importmystorePost->push_to_queue( $product );
+  				WC()->queue()->schedule_single( time(), 'wc_mystore_product_import', array( 'product' => $product ) );
 		  	}
 		
 
@@ -146,7 +75,6 @@ class Importer {
 	    $categories = wcystore()->http->get( '/categories');
 
 	    if ( is_wp_error( $categories ) ) {
-	    	error_log(print_r($categories,true));
 	  		return ;
 	  	}
 
@@ -155,7 +83,8 @@ class Importer {
 	    if( isset( $categories['data'] ) ) {
 
 		    foreach ( $categories['data'] as $category ) {
-		    	$importmystoreCategories->push_to_queue($category);
+		    	// $importmystoreCategories->push_to_queue($category);
+	  			WC()->queue()->schedule_single( time(), 'wc_mystore_category_import', array( 'category' => $category ) );
 		   	}
 
 		   	$importmystoreCategories->save()->dispatch();
@@ -174,7 +103,8 @@ class Importer {
 	    if( isset( $manufacturers['data'] ) ) {
 
 		    foreach ( $manufacturers['data'] as $manufacturer ) {
-		    	$importmystoreManufacturers->push_to_queue( $manufacturer );
+		    	// $importmystoreManufacturers->push_to_queue( $manufacturer );
+	  			WC()->queue()->schedule_single( time(), 'wc_mystore_manufacturer_import', array( 'manufacturer' => $manufacturer ) );
 		   	}
 
 		   	$importmystoreManufacturers->save()->dispatch();
@@ -185,8 +115,6 @@ class Importer {
 		$attribute_values = wcystore()->http->get( '/product-options' );
 
 		if ( is_wp_error( $attribute_values ) ) {
-	    	error_log(print_r($attribute_values,true));
-
 	  		return ;
 	  	}
 
@@ -207,12 +135,9 @@ class Importer {
 		$suboptions = wcystore()->http->get( '/product-suboptions' );
 
 		if ( is_wp_error( $suboptions ) ) {
-	    	error_log(print_r($suboptions,true));
-
 	  		return ;
 	  	}
 
-		// $importmystoreProductOption = new ImportMyStoreProductOption();
 
 		if( isset( $suboptions['data'] ) ) {
 	
@@ -228,8 +153,6 @@ class Importer {
 		$attribute_values = wcystore()->http->get( '/product-option-values' );
 
 		if ( is_wp_error( $attribute_values ) ) {
-	    	error_log(print_r($attribute_values,true));
-
 	  		return ;
 	  	}
 

@@ -1,50 +1,59 @@
 <?php 
 namespace WCMystore\WooCommerce;
 use WC_Product_Simple;
+use WP_Query;
 
 class WCProducts {
 
 	public function create( $args = [] ) {
-        error_log('create method');
-	  	$attributes 	= $args['attributes'];
-	  	$product = new WC_Product_Simple();
-        
-        if ( isset( $attributes['name']['no'] ) ) {
-            $product->set_name( wp_filter_post_kses( $attributes['name']['no'] ) );
-        }
+        $product_id = $args['id'];
 
-        // Post content.
-        if ( isset( $attributes['description']['no'] ) ) {
-            $product->set_description( wp_filter_post_kses( $attributes['description']['no'] ) );
-        }
-
-        // Post slug.
-        if ( isset( $attributes['slug']['no'] ) ) {
-            $product->set_slug( $attributes['slug']['no'] );
-        }
-
-        if ( isset( $attributes['sku'] ) ) {
-            $product->set_sku( $attributes['sku'] );
-        }
-
-        if ( isset( $attributes['price'] ) ) {
-            $product->set_regular_price( $attributes['price'] );
-        }
-
-        if ( 'yes' === get_option( 'woocommerce_manage_stock' ) ) {
-
-            if( isset( $attributes['quantity'] ) ) {
-                $product->set_stock_quantity( $attributes['quantity'] );
+        if( wcystore()->wc_products->exist( $product_id ) <= 0 ) {
+            error_log('create method');
+    	  	$attributes 	= $args['attributes'];
+    	  	$product = new WC_Product_Simple();
+            
+            if ( isset( $attributes['name']['no'] ) ) {
+                $product->set_name( wp_filter_post_kses( $attributes['name']['no'] ) );
             }
+
+            // Post content.
+            if ( isset( $attributes['description']['no'] ) ) {
+                $product->set_description( wp_filter_post_kses( $attributes['description']['no'] ) );
+            }
+
+            // Post slug.
+            if ( isset( $attributes['slug']['no'] ) ) {
+                $product->set_slug( $attributes['slug']['no'] );
+            }
+
+            if ( isset( $attributes['sku'] ) ) {
+                $product->set_sku( $attributes['sku'] );
+            }
+
+            if ( isset( $attributes['price'] ) ) {
+                $product->set_regular_price( $attributes['price'] );
+            }
+
+            if ( 'yes' === get_option( 'woocommerce_manage_stock' ) ) {
+
+                if( isset( $attributes['quantity'] ) ) {
+                    $product->set_stock_quantity( $attributes['quantity'] );
+                }
+            }
+
+            $product->save();
+
+            update_post_meta( $product->get_id(), 'mystore_product_id', $args['id']  );
+
+            $this->attachCategoryPost( $args['id'], $product->get_id()  );
+            $this->attachImagePost( $attributes, $product->get_id() );
+
+            return $product;
+        } else {
+            error_log('not create product');
+            return [];
         }
-
-        $product->save();
-
-        update_post_meta( $product->get_id(), 'mystore_product_id', $args['id']  );
-
-        $this->attachImagePost( $attributes, $product->get_id() );
-
-        return $product;
 	}
 
 	public function update( $args = [] ) {
@@ -98,5 +107,55 @@ class WCProducts {
             $res1        = wp_update_attachment_metadata( $attach_id, $attach_data );
             $res2        = set_post_thumbnail( $post_id, $attach_id );
         }
+    }
+
+
+    public function attachCategoryPost( $mystore_id, $product_id ) {
+
+        $categories = wcystore()->http->get( "/products/{$mystore_id}/categories");
+            
+        if( isset( $categories['data'] ) && !empty( $categories['data'] ) ) {
+            error_log('attach category');
+
+            $terms_list = [];
+        
+            foreach ( $categories['data'] as $category ) {
+
+                $term = wcystore()->wc_categories->create( $category );;
+
+                if( is_object( $term ) ) {
+                    array_push($terms_list, $term->term_id);
+                    update_term_meta( $term->term_id, 'mystore_product_cat_id', $category['id'] );
+                } else if( is_array( $term ) ) {
+                    array_push($terms_list, $term['term_id']);
+                    update_term_meta( $term['term_id'], 'mystore_product_cat_id', $category['id'] );
+                }
+            }
+
+            if( !empty( $terms_list ) ) {
+                wp_set_post_terms( $product_id, $terms_list,'product_cat' );
+            }
+
+        }
+    }
+
+
+    public function exist( $id ) {
+
+        $args = array(
+            'post_type' => array('product'),
+            'meta_query'     => array(
+                array(
+                    'key'     => 'mystore_product_id',
+                    'value'   => $id,
+                    'type'    => 'NUMERIC',
+                    'compare' => '=',
+                )
+            )    
+        );
+    
+        $query = new WP_Query( $args );
+        
+        return $query->found_posts;   
     }
 }

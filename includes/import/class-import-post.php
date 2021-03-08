@@ -20,35 +20,8 @@ class ImportMyStorePost extends WP_Background_Process {
 	}
 
 	protected function task( $product ) {
-
-	  		$product_id = $product['id'];
-
-	  		$pro = wcystore()->wc_products->create( $product );
-	  	
-	  		$categories = wcystore()->http->get( "/products/{$product_id}/categories");
-	  		
-			if( isset( $categories['data'] ) && !empty( $categories['data'] ) ) {
-
-				$terms_list = [];
-			
-				foreach ( $categories['data'] as $category ) {
-
-	  				$term = wcystore()->wc_categories->create( $category );;
-
-      				if( is_object( $term ) ) {
-      					array_push($terms_list, $term->term_id);
-      					update_term_meta( $term->term_id, 'mystore_product_cat_id', $category['id'] );
-      				} else if( is_array( $term ) ) {
-      					array_push($terms_list, $term['term_id']);
-      					update_term_meta( $term['term_id'], 'mystore_product_cat_id', $category['id'] );
-      				}
-				}
-
-				if( !empty( $terms_list ) ) {
-					wp_set_post_terms( $pro->get_id(), $terms_list,'product_cat' );
-				}
-
-			}
+	  	$product_id = $product['id'];
+	  	$pro = wcystore()->wc_products->create( $product );
 				
 		return false;
 	}

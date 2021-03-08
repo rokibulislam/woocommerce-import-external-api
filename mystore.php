@@ -75,12 +75,10 @@ final class WCMystore {
         require_once WCMYSTORE_INCLUDES . '/import/class-import-product-value.php';
 
 
-    	require_once WCMYSTORE_INCLUDES . '/class-customer.php';
     	require_once WCMYSTORE_INCLUDES . '/class-order.php';
     	require_once WCMYSTORE_INCLUDES . '/class-product.php';
     	require_once WCMYSTORE_INCLUDES . '/class-product-tags.php';
     	require_once WCMYSTORE_INCLUDES . '/class-product-categories.php';
-        require_once WCMYSTORE_INCLUDES . '/class-product-reviews.php';
 
         require_once WCMYSTORE_INCLUDES . '/woocommerce/WCCustomers.php';
         require_once WCMYSTORE_INCLUDES . '/woocommerce/WCOrders.php';
@@ -110,14 +108,25 @@ final class WCMystore {
     }
 
     public function init_classes() {
+
+        // $cat = get_terms( [ 
+        //     'taxonomy' => 'product_cat', 
+        //     'hide_empty' => false, 
+        //     'meta_query' => [
+        //         [
+        //             'key'       => 'mystore_product_cat_id',
+        //             'value'     => 57,
+        //             'compare'   => '='
+        //         ]
+        //     ] 
+        // ]);
+
        new WCMystore\Admin();
-       new WCMystore\Customer();
       
        // new WCMystore\Order();
        // new WCMystore\Product();
        // new WCMystore\ProductCategories();
        // new WCMystore\ProductTags();
-       // new WCMystore\ProductReviews();
 
        $this->container[ 'wc_customers' ]             = new WCMystore\WooCommerce\WCCustomers();
        $this->container[ 'wc_products' ]              = new WCMystore\WooCommerce\WCProducts();

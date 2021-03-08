@@ -45,3 +45,26 @@ function sar_custom_http_request_args( $r ){
     $r['timeout'] = 30; // 30 seconds. Too much for production, only for testing.
     return $r;
 }
+
+
+
+add_action( 'wc_mystore_product_import', 'wc_mystore_product_import', 10, 1 );
+
+function wc_mystore_product_import( $product ) {
+    $pro = wcystore()->wc_products->create( $product );
+}
+
+
+add_action( 'wc_mystore_manufacturer_import', 'wc_mystore_manufacturer_import', 10, 1 );
+
+
+function wc_mystore_manufacturer_import( $manufacturer ) {
+    wcystore()->wc_manufacturers->create( $manufacturer );
+}
+
+add_action( 'wc_mystore_category_import', 'wc_mystore_category_import', 10, 1 );
+
+
+function wc_mystore_category_import( $category ) {
+    wcystore()->wc_categories->create( $category );
+}
