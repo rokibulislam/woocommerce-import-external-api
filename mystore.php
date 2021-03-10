@@ -80,11 +80,13 @@ final class WCMystore {
     	require_once WCMYSTORE_INCLUDES . '/class-product-tags.php';
     	require_once WCMYSTORE_INCLUDES . '/class-product-categories.php';
 
-        require_once WCMYSTORE_INCLUDES . '/woocommerce/WCCustomers.php';
+        require_once WCMYSTORE_INCLUDES . '/woocommerce/WCCategories.php';
+        require_once WCMYSTORE_INCLUDES . '/woocommerce/WCManufacturers.php';
+        require_once WCMYSTORE_INCLUDES . '/woocommerce/WCOrderProducts.php';
         require_once WCMYSTORE_INCLUDES . '/woocommerce/WCOrders.php';
         require_once WCMYSTORE_INCLUDES . '/woocommerce/WCProducts.php';
-        require_once WCMYSTORE_INCLUDES . '/woocommerce/WCOrderProducts.php';
-    	require_once WCMYSTORE_INCLUDES . '/woocommerce/WCManufacturers.php';
+        require_once WCMYSTORE_INCLUDES . '/woocommerce/WCProductsOption.php';
+
 
 
         require_once WCMYSTORE_INCLUDES . '/class-api.php';
@@ -108,19 +110,6 @@ final class WCMystore {
     }
 
     public function init_classes() {
-
-        // $cat = get_terms( [ 
-        //     'taxonomy' => 'product_cat', 
-        //     'hide_empty' => false, 
-        //     'meta_query' => [
-        //         [
-        //             'key'       => 'mystore_product_cat_id',
-        //             'value'     => 57,
-        //             'compare'   => '='
-        //         ]
-        //     ] 
-        // ]);
-
        new WCMystore\Admin();
       
        // new WCMystore\Order();
@@ -128,7 +117,6 @@ final class WCMystore {
        // new WCMystore\ProductCategories();
        // new WCMystore\ProductTags();
 
-       $this->container[ 'wc_customers' ]             = new WCMystore\WooCommerce\WCCustomers();
        $this->container[ 'wc_products' ]              = new WCMystore\WooCommerce\WCProducts();
        $this->container[ 'wc_orders' ]                = new WCMystore\WooCommerce\WCOrders();
        $this->container[ 'wc_categories' ]            = new WCMystore\WooCommerce\WCCategories();

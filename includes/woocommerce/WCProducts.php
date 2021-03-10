@@ -35,12 +35,56 @@ class WCProducts {
                 $product->set_regular_price( $attributes['price'] );
             }
 
-            if ( 'yes' === get_option( 'woocommerce_manage_stock' ) ) {
+            // if ( 'yes' === get_option( 'woocommerce_manage_stock' ) ) {
 
                 if( isset( $attributes['quantity'] ) ) {
                     $product->set_stock_quantity( $attributes['quantity'] );
                 }
+            // }
+
+            $gallery = [];
+            
+            $image2 = $attributes ['image2'];
+            $image3 = $attributes ['image3'];
+            $image4 = $attributes ['image4'];
+            $image5 = $attributes ['image5'];
+            $image6 = $attributes ['image6'];
+            $image7 = $attributes ['image7'];
+            $image8 = $attributes ['image8'];
+
+            if( $image2 != null ){
+                $gallery[] = $this->attachGallery( $image2, $product->get_id() );
             }
+
+            if( $image3 != null ){
+                $gallery[] = $this->attachGallery( $image3, $product->get_id() );
+            }
+
+            if( $image4 != null ){
+                $gallery[] = $this->attachGallery( $image4, $product->get_id() );
+            }
+
+            if( $image5 != null ){
+                $gallery[] = $this->attachGallery( $image5, $product->get_id() );
+            }
+
+            if( $image5 != null ){
+                $gallery[] = $this->attachGallery( $image5, $product->get_id() );
+            }
+
+            if( $image6 != null ){
+                $gallery[] = $this->attachGallery( $image5, $product->get_id() );
+            }
+
+            if( $image7 != null ){
+                $gallery[] = $this->attachGallery( $image7, $product->get_id() );
+            }
+
+            if( $image8 != null ){
+                $gallery[] = $this->attachGallery( $image8, $product->get_id() );
+            }
+
+            $product->set_gallery_image_ids( $gallery );
 
             $product->save();
 
@@ -52,7 +96,7 @@ class WCProducts {
             return $product;
         } else {
             error_log('not create product');
-            return [];
+            return wc_get_product( $product_id );
         }
 	}
 
@@ -157,5 +201,32 @@ class WCProducts {
         $query = new WP_Query( $args );
         
         return $query->found_posts;   
+    }
+
+
+    public function attachGallery( $image, $post_id ) {
+        error_log('attach gallery');
+        $shop    = mystore_get_options( 'mystore_fields', 'mystore_name');
+        require_once(ABSPATH . 'wp-admin/includes/image.php');
+        $upload_dir = wp_upload_dir();
+        
+        $image_url  = "https://{$shop}.mystore4.no/users/{$shop}_mystore_no/images/$image";
+        $image_data = file_get_contents( $image_url);
+        $filename   = $upload_dir['basedir'] . '/' . strtotime("now") . $image ;
+        
+        file_put_contents( $filename, $image_data);
+        
+        $wp_filetype = wp_check_filetype( $filename, null );
+
+        $attachment = array(
+            'post_mime_type' => $wp_filetype['type'],
+            'post_title' => sanitize_file_name( basename( $filename ) ),
+            'post_content' => '',
+            'post_status' => 'inherit'
+        );
+
+        $attach_id = wp_insert_attachment( $attachment, $filename, $post_id );
+
+        return $attach_id;
     }
 }

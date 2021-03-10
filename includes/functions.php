@@ -68,3 +68,48 @@ add_action( 'wc_mystore_category_import', 'wc_mystore_category_import', 10, 1 );
 function wc_mystore_category_import( $category ) {
     wcystore()->wc_categories->create( $category );
 }
+
+
+
+add_filter( 'manage_product_posts_columns', 'set_custom_edit_product_columns' );
+
+add_filter( 'manage_edit-product_sortable_columns', 'set_custom_edit_product_columns' );
+ 
+function set_custom_edit_product_columns($columns) {
+    $columns['mystore'] = __( 'MyStore Id', 'your_text_domain' );
+ 
+    return $columns;
+}
+
+function product_custom_column_values( $column, $post_id ) {
+    switch ( $column ) {
+        case 'mystore'     :
+            echo get_post_meta( $post_id ,'mystore_product_id', true );
+        break;
+    }
+}
+
+add_action( 'manage_product_posts_custom_column' , 'product_custom_column_values', 10, 2 );
+
+
+
+add_filter( 'manage_edit-product_cat_columns', 'set_custom_edit_product_cat_columns' );
+
+
+
+function set_custom_edit_product_cat_columns( $columns ) {
+    $columns['mystore_cat'] = __( 'MyStore Category Id', 'your_text_domain' );
+ 
+    return $columns;
+}
+
+add_action( 'manage_product_cat_custom_column', 'wh_customFieldsListDisplay' , 10, 3); 
+
+
+function wh_customFieldsListDisplay( $columns, $column, $id ) {
+    if ( 'mystore_cat' == $column ) {
+        $columns = esc_html( get_term_meta($id, 'mystore_product_cat_id', true) );
+    }
+
+    return $columns;
+}
