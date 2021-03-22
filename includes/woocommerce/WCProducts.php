@@ -7,8 +7,8 @@ class WCProducts {
 
 	public function create( $args = [] ) {
         $product_id = $args['id'];
-
-        if( wcystore()->wc_products->exist( $product_id ) <= 0 ) {
+        $query =  wcystore()->wc_products->exist( $product_id );
+        if( $query->found_posts <= 0 ) {
             error_log('create method');
     	  	$attributes 	= $args['attributes'];
     	  	$product = new WC_Product_Simple();
@@ -35,53 +35,51 @@ class WCProducts {
                 $product->set_regular_price( $attributes['price'] );
             }
 
-            // if ( 'yes' === get_option( 'woocommerce_manage_stock' ) ) {
+            if ( isset( $attributes['weight'] ) ) {
+                $product->set_weight( $attributes['weight'] );
+            }
+
+            if ( 'yes' === get_option( 'woocommerce_manage_stock' ) ) {
+
+                // Manage stock.
+                if ( isset( $args['manage_stock'] ) ) {
+                    $product->set_manage_stock("yes");
+                }
 
                 if( isset( $attributes['quantity'] ) ) {
                     $product->set_stock_quantity( $attributes['quantity'] );
                 }
-            // }
+            }
 
             $gallery = [];
             
-            $image2 = $attributes ['image2'];
-            $image3 = $attributes ['image3'];
-            $image4 = $attributes ['image4'];
-            $image5 = $attributes ['image5'];
-            $image6 = $attributes ['image6'];
-            $image7 = $attributes ['image7'];
-            $image8 = $attributes ['image8'];
 
-            if( $image2 != null ){
-                $gallery[] = $this->attachGallery( $image2, $product->get_id() );
+            if( isset( $attributes ['image2'] ) && $attributes ['image2']!= null ){
+                $gallery[] = $this->attachGallery( $attributes ['image2'], $product->get_id() );
             }
 
-            if( $image3 != null ){
-                $gallery[] = $this->attachGallery( $image3, $product->get_id() );
+            if( isset( $attributes ['image3'] ) && $attributes ['image3']!= null ){
+                $gallery[] = $this->attachGallery( $attributes ['image3'], $product->get_id() );
             }
 
-            if( $image4 != null ){
-                $gallery[] = $this->attachGallery( $image4, $product->get_id() );
+            if( isset( $attributes ['image4'] ) && $attributes ['image4']!= null ){
+                $gallery[] = $this->attachGallery( $attributes ['image4'], $product->get_id() );
             }
 
-            if( $image5 != null ){
-                $gallery[] = $this->attachGallery( $image5, $product->get_id() );
+            if( isset( $attributes ['image5'] ) && $attributes ['image5']!= null ){
+                $gallery[] = $this->attachGallery( $attributes ['image5'], $product->get_id() );
             }
 
-            if( $image5 != null ){
-                $gallery[] = $this->attachGallery( $image5, $product->get_id() );
+            if( isset( $attributes ['image6'] ) && $attributes ['image6']!= null ){
+                $gallery[] = $this->attachGallery( $attributes ['image6'], $product->get_id() );
             }
 
-            if( $image6 != null ){
-                $gallery[] = $this->attachGallery( $image5, $product->get_id() );
+            if( isset( $attributes ['image7'] ) && $attributes ['image7']!= null ){
+                $gallery[] = $this->attachGallery( $attributes ['image7'], $product->get_id() );
             }
 
-            if( $image7 != null ){
-                $gallery[] = $this->attachGallery( $image7, $product->get_id() );
-            }
-
-            if( $image8 != null ){
-                $gallery[] = $this->attachGallery( $image8, $product->get_id() );
+            if( isset( $attributes ['image8'] ) && $attributes ['image8']!= null ){
+                $gallery[] = $this->attachGallery( $attributes ['image8'], $product->get_id() );
             }
 
             $product->set_gallery_image_ids( $gallery );
@@ -93,10 +91,43 @@ class WCProducts {
             $this->attachCategoryPost( $args['id'], $product->get_id()  );
             $this->attachImagePost( $attributes, $product->get_id() );
 
+
+            // if( !empty( $args['relationships'] ) ) {
+                if( $args['relationships']['manufacturer']['data'] != null ) {
+                    $manufacture_id = $args['relationships']['manufacturer']['data']['id'];
+                    $this->attachManufactorPost( $manufacture_id, $product->get_id() );
+                }
+            // }
+
             return $product;
         } else {
+
+            if ( $query->have_posts() ) : 
+                while ( $query->have_posts() ) : $query->the_post(); 
+                    global $post;
+                    $product = wc_get_product( $post->ID );
+                    if ( isset( $attributes['weight'] ) ) {
+                        $product->set_weight( $attributes['weight'] );
+                    }
+
+                    if ( 'yes' === get_option( 'woocommerce_manage_stock' ) ) {
+
+                        // Manage stock.
+                        if ( isset( $args['manage_stock'] ) ) {
+                            $product->set_manage_stock("yes");
+                        }
+
+                        if( isset( $attributes['quantity'] ) ) {
+                            $product->set_stock_quantity( $attributes['quantity'] );
+                        }
+                    }
+
+                    $product->save();
+                endwhile; 
+            endif;
+
             error_log('not create product');
-            return wc_get_product( $product_id );
+            return [];
         }
 	}
 
@@ -184,10 +215,32 @@ class WCProducts {
     }
 
 
+    public function attachManufactorPost( $mystore_id, $product_id ) {
+        error_log('attache manufacture');
+        $manufactures = get_terms([ 
+            'taxonomy' => 'product_manufacture', 
+            'hide_empty' => false, 
+            'meta_query' => [ 
+                [
+                    'key' => 'mystore_product_manufacture_id', 
+                    'value' => $mystore_id, 
+                    'compare' => '=' 
+                ] 
+            ] 
+        ]);
+
+        if( !empty( $manufactures ) ) {
+            $manufactures_ids = wp_list_pluck( $manufactures, 'term_id' );;
+            wp_set_post_terms( $product_id, $manufactures_ids,'product_manufacture' );
+        }
+    }
+
+
     public function exist( $id ) {
 
         $args = array(
             'post_type' => array('product'),
+            'post_status' =>  'any',
             'meta_query'     => array(
                 array(
                     'key'     => 'mystore_product_id',
@@ -200,7 +253,8 @@ class WCProducts {
     
         $query = new WP_Query( $args );
         
-        return $query->found_posts;   
+        // return $query->found_posts;   
+        return $query;   
     }
 
 

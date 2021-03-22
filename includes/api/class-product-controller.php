@@ -36,6 +36,19 @@ class ProductController extends WP_REST_Controller  {
         );
 
         register_rest_route(
+            $this->namespace,
+            '/' . $this->rest_base . '/batch',
+            [
+
+                [
+                    'methods'             => WP_REST_Server::CREATABLE,
+                    'callback'            => [ $this, 'create_batch_item' ],
+                    'permission_callback' => [ $this, 'create_item_permissions_check' ],
+                ]
+            ]
+        );
+
+        register_rest_route(
             $this->namespace, '/' . $this->rest_base . '/(?P<id>[\d]+)/', array(
                 'args' => array(
                     'id' => array(
@@ -82,12 +95,74 @@ class ProductController extends WP_REST_Controller  {
         );
     }
 
+    public function create_batch_item( $request ) {
+        
+        $products = $request->get_params();
+
+        if( isset( $products['data'] ) && !empty( $products['data'] ) ) {
+            
+            $inserted = [];
+
+            foreach ( $products['data'] as $product ) {
+
+                $response = wcystore()->wc_products->create( $product );
+
+                if( is_object( $response ) ) {
+                    $mystore_id = get_post_meta( $response->get_id(),'mystore_product_id', true );  
+                    $inserted[$mystore_id] = $response->get_id();
+                }
+
+            }
+        }
+
+        $response = [
+            'data' => $inserted
+        ];
+
+        $response = rest_ensure_response( $response );
+
+        return $response;
+    }
 
 
     public function create_item( $request ) {
-        // error_log('create');
-        // error_log(print_r($request,true));
+        // $body = $request->get_params();
 
+        // error_log(print_r($body['relationships']['categories']['links'],true));
+        
+        // if( !empty( $body['relationships']['categories']['links'] ) ) {
+        //     $cat_relationship = $body['relationships']['categories']['links']['related'];
+        //     $cat_url = parse_url( $cat_relationship );
+        //     $cat_id  = filter_var( $cat_url['path'], FILTER_SANITIZE_NUMBER_INT );
+
+        //     error_log(print_r($cat_id,true));
+
+        //     if( $cat_id == 106 ) {
+                
+        //         $response = [
+        //             'message' => __( 'this product is not in production.', '' ),
+        //         ];
+
+        //         $response = rest_ensure_response( $response );
+
+        //         return $response;
+        //     }
+        // }
+
+        // $product = wcystore()->wc_products->create( $body );
+
+        // $response = [
+        //     'data' => [
+        //         'id' => $product
+        //     ],
+
+        //     'message' => __( 'Unknown source.', '' ),
+        // ];
+
+        // $response = rest_ensure_response( $response );
+
+        // return $response;
+    
         $product = wcystore()->wc_products->create( $request['data'] );
 
         $response = [
@@ -102,6 +177,8 @@ class ProductController extends WP_REST_Controller  {
 
         return $response;
     }
+
+
 
 
     public function get_items( $request ) {

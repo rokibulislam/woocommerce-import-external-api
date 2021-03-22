@@ -16,10 +16,12 @@ class Importer {
        	$shop    = mystore_get_options( 'mystore_fields', 'mystore_name');
        	$import  = get_option( 'mystore_import' );
 
-
        	if( !empty( $shop ) && !empty( $api_key ) && !$import  ) {
 			
 			add_action( 'admin_init', function() {
+
+				error_log('admin init');
+
 				// $this->getProduct();
 				// $this->getCategory();
 				// $this->get_categories();
@@ -38,60 +40,72 @@ class Importer {
 
 
 	public function getProduct() {
-		$product = wcystore()->http->get( "/products/2576/");
-
+		$product = wcystore()->http->get( "/products/1235/");
+		
 		if ( is_wp_error( $product ) ) {
 	  		return ;
 	  	}
 
-	  	$pro 	 = wcystore()->wc_products->create( $product['data'] );
-	  	$post_id = $pro->get_id();
+	  	error_log('get product');
+	  	
+	  	$response = wp_remote_post( 'https://helsekost.no///wp-json/wcmystore/v1/product', array(
+	    	'body'    => $product,
+		) );
 
-	  	$gallery = [];
+		error_log(print_r($response,true));	
+
+	  	// $response = wcystore()->sqs->send( $product );
+
+	  	// error_log(print_r($response,true));
+
+	  	// $pro 	 = wcystore()->wc_products->create( $product['data'] );
+	 //  	$post_id = $pro->get_id();
+
+	 //  	$gallery = [];
 			
-		$image2 = $product['data']['attributes']['image2'];
-		$image3 = $product['data']['attributes']['image3'];
-		$image4 = $product['data']['attributes']['image4'];
-		$image5 = $product['data']['attributes']['image5'];
-		$image6 = $product['data']['attributes']['image6'];
-		$image7 = $product['data']['attributes']['image7'];
-		$image8 = $product['data']['attributes']['image8'];
+		// $image2 = $product['data']['attributes']['image2'];
+		// $image3 = $product['data']['attributes']['image3'];
+		// $image4 = $product['data']['attributes']['image4'];
+		// $image5 = $product['data']['attributes']['image5'];
+		// $image6 = $product['data']['attributes']['image6'];
+		// $image7 = $product['data']['attributes']['image7'];
+		// $image8 = $product['data']['attributes']['image8'];
 
-		if( $image2 != null ){
-			$gallery[] = $this->attachGallery( $image2, $post_id );
-		}
+		// if( $image2 != null ){
+		// 	$gallery[] = $this->attachGallery( $image2, $post_id );
+		// }
 
-		if( $image3 != null ){
-			$gallery[] = $this->attachGallery( $image3, $post_id );
-		}
+		// if( $image3 != null ){
+		// 	$gallery[] = $this->attachGallery( $image3, $post_id );
+		// }
 
-		if( $image4 != null ){
-			$gallery[] = $this->attachGallery( $image4, $post_id );
-		}
+		// if( $image4 != null ){
+		// 	$gallery[] = $this->attachGallery( $image4, $post_id );
+		// }
 
-		if( $image5 != null ){
-			$gallery[] = $this->attachGallery( $image5, $post_id );
-		}
+		// if( $image5 != null ){
+		// 	$gallery[] = $this->attachGallery( $image5, $post_id );
+		// }
 
-		if( $image5 != null ){
-			$gallery[] = $this->attachGallery( $image5, $post_id );
-		}
+		// if( $image5 != null ){
+		// 	$gallery[] = $this->attachGallery( $image5, $post_id );
+		// }
 
-		if( $image6 != null ){
-			$gallery[] = $this->attachGallery( $image5, $post_id );
-		}
+		// if( $image6 != null ){
+		// 	$gallery[] = $this->attachGallery( $image5, $post_id );
+		// }
 
-		if( $image7 != null ){
-			$gallery[] = $this->attachGallery( $image7, $post_id );
-		}
+		// if( $image7 != null ){
+		// 	$gallery[] = $this->attachGallery( $image7, $post_id );
+		// }
 
-		if( $image8 != null ){
-			$gallery[] = $this->attachGallery( $image8, $post_id );
-		}
+		// if( $image8 != null ){
+		// 	$gallery[] = $this->attachGallery( $image8, $post_id );
+		// }
 
-		$pro->set_gallery_image_ids( $gallery );
+		// $pro->set_gallery_image_ids( $gallery );
 
-		$pro->save();
+		// $pro->save();
 	}
 
 	public function attachGallery( $image, $post_id ) {
@@ -177,20 +191,48 @@ class Importer {
 	public function get_products() {
 		$params = [
 			'page' => [
-				'number' => 31,
-				'size'  => 50
+				'number' => 51,
+				'size'  => 10
 			]
 		];
 
 	  	$products = wcystore()->http->get( '/products', $params );
 
-	  	error_log(print_r($products,true));
+	  	error_log('products');
 
 	  	if ( is_wp_error( $products ) ) {
 	  		return ;
 	  	}
 
-	  	$this->queuePost( $products );
+
+	  	if( isset( $products['data'] ) && !empty( $products['data'] ) ) {
+
+		  	foreach ( $products['data'] as $product ) {
+
+		  		if( !empty( $product['data']['relationships']['categories']['links'] ) ) {
+		  			
+		  			$cat_relationship = $product['data']['relationships']['categories']['links']['related'];
+		  			$cat_url = parse_url( $cat_relationship );
+		  			$cat_id  = filter_var( $cat_url['path'], FILTER_SANITIZE_NUMBER_INT );
+
+		  			if( $cat_id = 106 ) {
+		  				continue;
+		  			}
+		  		}
+
+		  		$response = wp_remote_post( 'http://wphelskot.test//wp-json/wcmystore/v1/product', array(
+	    			'body'    => $product,
+				) );
+
+				error_log(print_r($response,true));
+
+		  		// wcmystore()->sqs->send( $product );
+
+		  		// wcystore()->wc_products->create( $product );
+		  	}
+		}
+
+	  	// $this->queuePost( $products );
 
 
 	 //  	$importmystorePost = new ImportMyStorePost();
@@ -242,6 +284,18 @@ class Importer {
 
 		  	foreach ( $products['data'] as $product ) {
 				$product_id = $product['id'];
+		  	
+		  		if( !empty( $product['data']['relationships']['categories']['links'] ) ) {
+		  			
+		  			$cat_relationship = $product['data']['relationships']['categories']['links']['related'];
+		  			$cat_url = parse_url( $cat_relationship );
+		  			$cat_id  = filter_var( $cat_url['path'], FILTER_SANITIZE_NUMBER_INT );
+
+		  			if( $cat_id = 106 ) {
+		  				continue;
+		  			}
+		  		}
+
 				$importmystorePost->push_to_queue( $product );
   				// WC()->queue()->schedule_single( time(), 'wc_mystore_product_import', array( 'product' => $product ) );
 		  	}

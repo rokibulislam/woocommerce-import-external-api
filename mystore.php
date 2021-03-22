@@ -64,6 +64,7 @@ final class WCMystore {
 
     public function includes() {
         require_once WCMYSTORE_INCLUDES . '/class-http.php';
+        require_once WCMYSTORE_INCLUDES . '/class-sqs.php';
         require_once WCMYSTORE_INCLUDES . '/class-admin.php';
         require_once WCMYSTORE_INCLUDES . '/class-settings-api.php';
         require_once WCMYSTORE_INCLUDES . '/class-import.php';
@@ -75,6 +76,7 @@ final class WCMystore {
         require_once WCMYSTORE_INCLUDES . '/import/class-import-product-value.php';
 
 
+        require_once WCMYSTORE_INCLUDES . '/class-manufacture.php';
     	require_once WCMYSTORE_INCLUDES . '/class-order.php';
     	require_once WCMYSTORE_INCLUDES . '/class-product.php';
     	require_once WCMYSTORE_INCLUDES . '/class-product-tags.php';
@@ -111,7 +113,8 @@ final class WCMystore {
 
     public function init_classes() {
        new WCMystore\Admin();
-      
+       // new WCMystore\AWSSQS();
+       new WCMystore\Manufacture();
        // new WCMystore\Order();
        // new WCMystore\Product();
        // new WCMystore\ProductCategories();
@@ -126,6 +129,7 @@ final class WCMystore {
        $this->container[ 'http' ]     = new WCMystore\Http();
        $this->container[ 'api' ]      = new WCMystore\Api();
        $this->container[ 'importer' ] = new WCMystore\Importer();
+       $this->container[ 'sqs' ] = new WCMystore\AWSSQS();;
     }
 }
 
